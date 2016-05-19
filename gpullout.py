@@ -1,5 +1,6 @@
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
 g = 9.81
 
@@ -15,13 +16,18 @@ def ramp(startVal, endVal, period, time):
         return endVal
     return startVal + ((endVal - startVal) / period) * time
 
+def IAStoTAS(ias, alt):
+    return ias + ias * 0.02 * (alt/1000)
+
 # Setup graph
 fig = plt.figure(1, figsize=(8.5, 8.5))
 ax = plt.subplot(111)
 ax.yaxis.grid(True)
 ax.xaxis.grid(True)
-ax.set_ylim(-8000, 0)
-#ax.set_xlim(0)
+ax.set_ylim(-10000, 0)
+
+start, end = ax.get_ylim()
+ax.yaxis.set_ticks(np.arange(start, end, 1000))
 
 Lg = 4.0 
 Wg = 1.0
@@ -90,21 +96,28 @@ def gPullOut(initialVelocity, initialFPA):
         # Print some results
         print(math.degrees(fpa), alt*mToft, Vkt)
 
-        #ax.scatter(t, alt*mToft)
         times.append(t)
         alts.append(alt*mToft)
 
-    ax.plot(times, alts)
+    ax.plot(times, alts, label='%d degrees' % (initialFPA + 0.5))
+    ax.legend(loc='upper right') 
+    ax.set_xlabel('Time (s)') 
 
 # Runs
 #gPullOut(480, 45)
 #gPullOut(540, 45)
 #gPullOut(600, 45)
 
-gPullOut(540, 30)
-gPullOut(540, 45)
-gPullOut(540, 60)
-gPullOut(540, 89)
+startAlt = 10000
+ias = 500
+gPull = 6
+
+ax.set_title("%dg Pull-out at %dkt" % (gPull, ias))
+
+gPullOut(IAStoTAS(ias, startAlt), 30)
+gPullOut(IAStoTAS(ias, startAlt), 45)
+gPullOut(IAStoTAS(ias, startAlt), 60)
+gPullOut(IAStoTAS(ias, startAlt), 89.9)
 
 plt.show()
 
